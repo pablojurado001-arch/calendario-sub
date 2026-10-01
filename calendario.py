@@ -407,27 +407,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-    for i, linea in enumerate(lineas):
-
-        if "Boca" in linea or "Priego" in linea:
-
-            encontradas += 1
-
-            print()
-            print("----- BLOQUE", encontradas, "-----")
-
-            inicio = max(0, i - 5)
-            fin = min(len(lineas), i + 10)
-
-            for j in range(inicio, fin):
-                print(j, repr(lineas[j]))
-
-            if encontradas >= 10:
-                break
-
-    print()
-    print("Bloques encontrados:", encontradas)
-
-
-if __name__ == "__main__":
-    main()
