@@ -2,20 +2,23 @@ import re
 import hashlib
 from datetime import datetime, timedelta
 from urllib.request import Request, urlopen
+
 from bs4 import BeautifulSoup
 
-URL = "https://astursala.es/tercera-division-futbol-sala-grupo-18-andalucia-oriental"
+
+URL = (
+    "https://astursala.es/"
+    "tercera-division-futbol-sala-grupo-18-andalucia-oriental"
+)
 
 EQUIPO = "C.D. Boca F.S. Priego"
 ARCHIVO_SALIDA = "boca-priego.ics"
 
 
-def descargar_web():
+def descargar():
     request = Request(
         URL,
-        headers={
-            "User-Agent": "Mozilla/5.0"
-        }
+        headers={"User-Agent": "Mozilla/5.0"}
     )
 
     with urlopen(request, timeout=30) as respuesta:
@@ -26,15 +29,301 @@ def limpiar(texto):
     return re.sub(r"\s+", " ", texto).strip()
 
 
-def obtener_partidos():
-    html = descargar_web()
+def extraer_partidos():
+    html = descargar()
     soup = BeautifulSoup(html, "html.parser")
 
-    texto = soup.get_text("\n")
-    lineas = [limpiar(x) for x in texto.splitlines()]
-    lineas = [x for x in lineas if x]
+    # Convertimos la página en texto manteniendo cada línea.
+    lineas = [
+        limpiar(x)
+        for x in soup.get_text("\n").splitlines()
+        if limpiar(x)
+    ]
 
     partidos = []
+
+    patron_fecha = re.compile(
+        r"(?:lunes|martes|miércoles|jueves|viernes|sábado|domingo),?\s*"
+        r"(\d{1,2})\s+"
+        r"(ene|feb|mar|abr|may|jun|jul|ago|sep|oct|nov|dic)"
+        r"(?:[a-z]+)?\s+"
+        r"(\d{4})\s*-\s*"
+        r"(\d{1,2}):(\d{2})\s*Horas",
+        re.IGNORECASE
+    )
+
+    meses = {
+        "ene": 1,
+        "feb": 2,
+        "mar": 3,
+        "abr": 4,
+        "may": 5,
+        "jun": 6,
+        "jul": 7,
+        "ago": 8,
+        "sep": 9,
+        "oct": 10,
+        "nov": 11,
+        "dic": 12,
+    }
+
+    for i, linea in enumerate(lineas):
+
+        if "3ª Dvs - Grupo 18" not in linea:
+            continue
+
+        # Buscamos la fecha inmediatamente después.
+        fecha = None
+        indice_fecha = None
+
+        for j in range(i + 1, min(i + 12, len(lineas))):
+            coincidencia = patron_fecha.search(lineas[j])
+
+            if coincidencia:
+                fecha = coincidencia
+                indice_fecha = j
+                break
+
+        if not fecha:
+            continue
+
+        dia = int(fecha.group(1))
+        mes = meses.get(fecha.group(2).lower())
+        anio = int(fecha.group(3))
+        hora = int(fecha.group(4))
+        minuto = int(fecha.group(5))
+
+        if not mes:
+            continue
+
+        fecha_partido = datetime(
+            anio,
+            mes,
+            dia,
+            hora,
+            minuto
+        )
+
+        # Después de la fecha normalmente aparecen:
+        # pabellón
+        # equipo local
+        # Previa/resultado
+        # equipo visitante
+
+        bloque = lineas[
+            indice_fecha + 1:
+            min(indice_fecha + 8, len(lineas))
+        ]
+
+        pabellon = ""
+        local = ""
+        visitante = ""
+
+        indice_boca = None
+
+        for k, texto in enumerate(bloque):
+
+            if "Pabell" in texto or "pabell" in texto:
+                if not pabellon:
+                    pabellon = texto
+
+            if EQUIPO.lower() in texto.lower():
+                indice_boca = k
+
+        if indice_boca is None:
+            continue
+
+        # El rival está normalmente justo antes o justo después
+        # del nombre de Boca.
+        candidatos = []
+
+        for k, texto in enumerate(bloque):
+            if k == indice_boca:
+                continue
+
+            if any(
+                x in texto.lower()
+                for x in [
+                    "previa",
+                    "horas",
+                    "3ª dvs",
+                    "pabell",
+                ]
+            ):
+                continue
+
+            if re.match(r"^\d+\s*-\s*\d+$", texto):
+                continue
+
+            if len(texto) > 100:
+                continue
+
+            candidatos.append((k, texto))
+
+        # El rival es el equipo que acompaña a Boca en el bloque.
+        for k, texto in candidatos:
+            if texto != EQUIPO and texto not in [
+                local,
+                visitante
+            ]:
+                if k < indice_boca:
+                    local = texto
+                elif not visitante:
+                    visitante = texto
+
+        # Determinamos quién es local.
+        # Si Boca aparece antes que el rival, Boca es local.
+        if indice_boca < len(bloque) // 2:
+            local = EQUIPO
+        else:
+            visitante = EQUIPO
+
+        rival = (
+            visitante
+            if local == EQUIPO
+            else local
+        )
+
+        if not rival or rival == EQUIPO:
+            continue
+
+        # Evitar duplicados.
+        clave = (
+            fecha_partido.strftime("%Y%m%d"),
+            hora,
+            minuto,
+            rival,
+            pabellon,
+        )
+
+        if any(p["clave"] == clave for p in partidos):
+            continue
+
+        partidos.append(
+            {
+                "fecha": fecha_partido,
+                "rival": rival,
+                "pabellon": pabellon,
+                "local": local,
+                "visitante": visitante,
+                "clave": clave,
+            }
+        )
+
+    partidos.sort(key=lambda p: p["fecha"])
+
+    return partidos
+
+
+def escapar(texto):
+    return (
+        str(texto)
+        .replace("\\", "\\\\")
+        .replace(";", "\\;")
+        .replace(",", "\\,")
+        .replace("\n", "\\n")
+    )
+
+
+def generar_calendario(partidos):
+
+    lineas = [
+        "BEGIN:VCALENDAR",
+        "VERSION:2.0",
+        "PRODID:-//Boca Priego FS//Calendario Senior//ES",
+        "CALSCALE:GREGORIAN",
+        "METHOD:PUBLISH",
+        "X-WR-CALNAME:Boca Priego FS Senior",
+        "X-WR-CALDESC:Partidos Boca Priego FS Senior",
+        "X-WR-TIMEZONE:Europe/Madrid",
+    ]
+
+    for partido in partidos:
+
+        inicio = partido["fecha"]
+
+        # Dos horas de duración.
+        fin = inicio + timedelta(hours=2)
+
+        # El UID se basa en la jornada + rival.
+        # Si cambia hora o pabellón, seguirá siendo
+        # el mismo evento.
+        uid_base = (
+            f'{inicio.strftime("%Y-%m-%d")}|'
+            f'{partido["rival"]}'
+        )
+
+        uid = hashlib.sha256(
+            uid_base.encode("utf-8")
+        ).hexdigest()[:32]
+
+        uid = f"{uid}@bocapriego"
+
+        titulo = (
+            f"Boca Priego FS - {partido['rival']}"
+        )
+
+        descripcion = (
+            "Boca Priego FS Senior\\n"
+            "3ª División Fútbol Sala - Grupo 18\\n"
+            f"Local: {partido['local']}\\n"
+            f"Visitante: {partido['visitante']}"
+        )
+
+        lineas.extend(
+            [
+                "BEGIN:VEVENT",
+                f"UID:{uid}",
+                f"DTSTAMP:{datetime.utcnow().strftime('%Y%m%dT%H%M%SZ')}",
+                f"DTSTART;TZID=Europe/Madrid:{inicio.strftime('%Y%m%dT%H%M%S')}",
+                f"DTEND;TZID=Europe/Madrid:{fin.strftime('%Y%m%dT%H%M%S')}",
+                f"SUMMARY:{escapar(titulo)}",
+                f"LOCATION:{escapar(partido['pabellon'])}",
+                f"DESCRIPTION:{escapar(descripcion)}",
+                "END:VEVENT",
+            ]
+        )
+
+    lineas.append("END:VCALENDAR")
+
+    with open(
+        ARCHIVO_SALIDA,
+        "w",
+        encoding="utf-8"
+    ) as archivo:
+
+        archivo.write(
+            "\r\n".join(lineas) + "\r\n"
+        )
+
+
+if __name__ == "__main__":
+
+    partidos = extraer_partidos()
+
+    print("=" * 60)
+    print(f"PARTIDOS ENCONTRADOS: {len(partidos)}")
+    print("=" * 60)
+
+    for partido in partidos:
+
+        print(
+            partido["fecha"].strftime(
+                "%d/%m/%Y %H:%M"
+            ),
+            "|",
+            partido["local"],
+            "vs",
+            partido["visitante"],
+            "|",
+            partido["pabellon"],
+        )
+
+    generar_calendario(partidos)
+
+    print("=" * 60)
+    print("CALENDARIO GENERADO:", ARCHIVO_SALIDA)
+    print("=" * 60)    partidos = []
 
     meses = {
         "ene": 1,
