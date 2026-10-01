@@ -1,0 +1,27 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Boca Priego FS//Calendario Senior//ES
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:Boca Priego FS Senior
+X-WR-CALDESC:Partidos del Boca Priego FS Senior
+X-WR-TIMEZONE:Europe/Madrid
+BEGIN:VEVENT
+UID:56e5903671b30af9be278e9d854ca6bc@bocapriego
+DTSTAMP:20261001T120628Z
+DTSTART;TZID=Europe/Madrid:20261003T170000
+DTEND;TZID=Europe/Madrid:20261003T190000
+SUMMARY:Boca Priego FS - - 17:00 Horas
+LOCATION:Pabellón Municipal Torre del Mar
+DESCRIPTION:Partido Boca Priego FS Senior\\nCompetición: 3ª División Fútbol Sala - Grupo 18
+END:VEVENT
+BEGIN:VEVENT
+UID:1b959e69b4d9b11c80cecaade8b33479@bocapriego
+DTSTAMP:20261001T120628Z
+DTSTART;TZID=Europe/Madrid:20261011T000000
+DTEND;TZID=Europe/Madrid:20261011T020000
+SUMMARY:Boca Priego FS - C.D. Atletico Torre del Mar
+LOCATION:Polideportivo Municipal Mancha Real
+DESCRIPTION:Partido Boca Priego FS Senior\\nCompetición: 3ª División Fútbol Sala - Grupo 18
+END:VEVENT
+END:VCALENDAR
