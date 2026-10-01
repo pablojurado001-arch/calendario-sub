@@ -1,6 +1,6 @@
 import re
 import hashlib
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
 from urllib.request import Request, urlopen
 
 from bs4 import BeautifulSoup
@@ -13,22 +13,6 @@ URL = (
 
 EQUIPO = "C.D. Boca F.S. Priego"
 SALIDA = "boca-priego.ics"
-
-
-MESES = {
-    "enero": 1,
-    "febrero": 2,
-    "marzo": 3,
-    "abril": 4,
-    "mayo": 5,
-    "junio": 6,
-    "julio": 7,
-    "agosto": 8,
-    "septiembre": 9,
-    "octubre": 10,
-    "noviembre": 11,
-    "diciembre": 12,
-}
 
 
 def descargar():
@@ -53,53 +37,7 @@ def limpiar(texto):
     ).strip()
 
 
-def analizar_fecha(linea_fecha, linea_hora=None):
-
-    texto = limpiar(linea_fecha)
-
-    if linea_hora:
-        texto += " " + limpiar(linea_hora)
-
-    # Formato:
-    # sábado, 3 octubre 2026 - 17:00 Horas
-    patron = re.search(
-        r"(\d{1,2})\s+"
-        r"([a-záéíóú]+)\s+"
-        r"(\d{4})"
-        r"(?:\s*-\s*(\d{1,2}):(\d{2})\s*Horas)?",
-        texto,
-        re.IGNORECASE
-    )
-
-    if not patron:
-        return None
-
-    dia = int(patron.group(1))
-    mes_nombre = patron.group(2).lower()
-    anio = int(patron.group(3))
-
-    mes = MESES.get(mes_nombre)
-
-    if not mes:
-        return None
-
-    if patron.group(4):
-        hora = int(patron.group(4))
-        minuto = int(patron.group(5))
-    else:
-        hora = 0
-        minuto = 0
-
-    return datetime(
-        anio,
-        mes,
-        dia,
-        hora,
-        minuto
-    )
-
-
-def obtener_partidos():
+def obtener_lineas():
 
     soup = BeautifulSoup(
         descargar(),
@@ -115,161 +53,128 @@ def obtener_partidos():
         if texto:
             lineas.append(texto)
 
+    return lineas
+
+
+def obtener_partidos():
+
+    lineas = obtener_lineas()
+
     partidos = []
 
-    i = 0
+    meses = {
+        "enero": 1,
+        "febrero": 2,
+        "marzo": 3,
+        "abril": 4,
+        "mayo": 5,
+        "junio": 6,
+        "julio": 7,
+        "agosto": 8,
+        "septiembre": 9,
+        "octubre": 10,
+        "noviembre": 11,
+        "diciembre": 12
+    }
 
-    while i < len(lineas):
+    patron_fecha = re.compile(
+        r"(?:lunes|martes|miércoles|jueves|viernes|sábado|domingo),?\s*"
+        r"(\d{1,2})\s+"
+        r"([a-záéíóú]+)\s+"
+        r"(\d{4})\s*-\s*"
+        r"(\d{1,2}):(\d{2})\s*Horas",
+        re.IGNORECASE
+    )
 
-        linea = lineas[i]
+    for i in range(len(lineas)):
 
-        # -------------------------------------------------
-        # FORMATO 1
+        coincidencia = patron_fecha.search(
+            lineas[i]
+        )
+
+        if not coincidencia:
+            continue
+
+        # Necesitamos:
         #
-        # sábado, 3 octubre 2026
-        # - 17:00 Horas
-        # Pabellón Municipal Torre del Mar
-        # C.D. Atletico Torre del Mar
+        # fecha/hora
+        # pabellón
+        # local
         # Previa
-        # C.D. Boca F.S. Priego
-        # -------------------------------------------------
+        # visitante
 
-        if (
-            "Boca" in linea
-            and "Priego" in linea
-        ):
-            i += 1
+        if i + 4 >= len(lineas):
             continue
 
-        fecha = None
-        fecha_index = None
+        pabellon = lineas[i + 1]
+        local = lineas[i + 2]
+        marcador = lineas[i + 3]
+        visitante = lineas[i + 4]
 
-        # Miramos unas líneas alrededor.
-        for j in range(
-            max(0, i - 8),
-            min(len(lineas), i + 8)
-        ):
-
-            posible_fecha = analizar_fecha(
-                lineas[j]
-            )
-
-            if posible_fecha:
-
-                fecha = posible_fecha
-                fecha_index = j
-                break
-
-            # Formato partido en dos líneas:
-            # 3 octubre 2026
-            # - 17:00 Horas
-
-            if j + 1 < len(lineas):
-
-                posible_fecha = analizar_fecha(
-                    lineas[j],
-                    lineas[j + 1]
-                )
-
-                if posible_fecha:
-
-                    fecha = posible_fecha
-                    fecha_index = j
-                    break
-
-        if fecha is None:
-            i += 1
-            continue
-
-        # -------------------------------------------------
-        # Buscamos la estructura del partido a partir
-        # de la fecha.
-        # -------------------------------------------------
-
-        pabellon = None
-        local = None
-        visitante = None
-
-        for j in range(
-            fecha_index + 1,
-            min(
-                len(lineas),
-                fecha_index + 10
-            )
-        ):
-
-            texto = lineas[j]
-
-            # Pabellón
-            if (
-                "Pabellón" in texto
-                or "Pabellon" in texto
-                or "Polideportivo" in texto
-            ):
-
-                if pabellon is None:
-                    pabellon = texto
-
-                continue
-
-            # Buscamos la estructura:
-            #
-            # EQUIPO
-            # Previa
-            # EQUIPO
-
-            if j + 2 < len(lineas):
-
-                candidato_local = lineas[j]
-                marcador = lineas[j + 1]
-                candidato_visitante = lineas[j + 2]
-
-                if marcador.lower() == "previa":
-
-                    if (
-                        EQUIPO in candidato_local
-                        or EQUIPO in candidato_visitante
-                    ):
-
-                        local = candidato_local
-                        visitante = candidato_visitante
-
-                        break
-
-        if (
-            local is None
-            or visitante is None
-        ):
-            i += 1
+        if marcador.lower() != "previa":
             continue
 
         if (
             EQUIPO not in local
             and EQUIPO not in visitante
         ):
-            i += 1
             continue
+
+        dia = int(
+            coincidencia.group(1)
+        )
+
+        nombre_mes = (
+            coincidencia.group(2)
+            .lower()
+        )
+
+        anio = int(
+            coincidencia.group(3)
+        )
+
+        hora = int(
+            coincidencia.group(4)
+        )
+
+        minuto = int(
+            coincidencia.group(5)
+        )
+
+        mes = meses.get(
+            nombre_mes
+        )
+
+        if not mes:
+            continue
+
+        fecha = datetime(
+            anio,
+            mes,
+            dia,
+            hora,
+            minuto
+        )
 
         rival = (
             visitante
-            if EQUIPO in local
+            if local == EQUIPO
             else local
         )
 
-        # -------------------------------------------------
-        # UID ESTABLE
-        # -------------------------------------------------
-
-        clave = (
-            fecha.strftime("%Y-%m-%d")
-            + "|"
-            + local
-            + "|"
-            + visitante
+        # Identificador estable.
+        # Si cambia la hora o el pabellón,
+        # seguirá siendo el mismo partido.
+        identificador = (
+            f"{anio}-{mes:02d}-{dia:02d}|"
+            f"{local}|"
+            f"{visitante}"
         )
 
         uid = hashlib.sha256(
-            clave.encode("utf-8")
+            identificador.encode(
+                "utf-8"
+            )
         ).hexdigest()[:32]
 
         partidos.append(
@@ -278,19 +183,15 @@ def obtener_partidos():
                 "local": local,
                 "visitante": visitante,
                 "rival": rival,
-                "pabellon": pabellon or "",
-                "uid": uid,
+                "pabellon": pabellon,
+                "uid": uid
             }
         )
 
-        i = fecha_index + 5
-
     # Eliminar duplicados
-
     unicos = {}
 
     for partido in partidos:
-
         unicos[partido["uid"]] = partido
 
     partidos = list(
@@ -325,32 +226,31 @@ def generar_calendario(partidos):
         "METHOD:PUBLISH",
         "X-WR-CALNAME:Boca Priego FS Senior",
         "X-WR-CALDESC:Partidos Boca Priego FS Senior",
-        "X-WR-TIMEZONE:Europe/Madrid",
+        "X-WR-TIMEZONE:Europe/Madrid"
     ]
 
     for partido in partidos:
 
         fecha = partido["fecha"]
 
-        hora_pendiente = (
+        # Si la web pone 00:00,
+        # consideramos que la hora todavía
+        # no está confirmada.
+        hora_no_confirmada = (
             fecha.hour == 0
             and fecha.minute == 0
         )
 
         titulo = (
-            partido["local"]
-            + " - "
-            + partido["visitante"]
+            f"{partido['local']} - "
+            f"{partido['visitante']}"
         )
 
         descripcion = (
             "Boca Priego FS Senior\\n"
             "3ª División Fútbol Sala - Grupo 18\\n"
-            "Local: "
-            + partido["local"]
-            + "\\n"
-            "Visitante: "
-            + partido["visitante"]
+            f"Local: {partido['local']}\\n"
+            f"Visitante: {partido['visitante']}"
         )
 
         calendario.append(
@@ -358,21 +258,17 @@ def generar_calendario(partidos):
         )
 
         calendario.append(
-            "UID:"
-            + partido["uid"]
-            + "@bocapriego"
+            f"UID:{partido['uid']}@bocapriego"
         )
 
         calendario.append(
             "DTSTAMP:"
-            + datetime.now(
-                timezone.utc
-            ).strftime(
+            + datetime.utcnow().strftime(
                 "%Y%m%dT%H%M%SZ"
             )
         )
 
-        if hora_pendiente:
+        if hora_no_confirmada:
 
             calendario.append(
                 "DTSTART;VALUE=DATE:"
@@ -384,11 +280,8 @@ def generar_calendario(partidos):
             calendario.append(
                 "DTEND;VALUE=DATE:"
                 + (
-                    fecha
-                    + timedelta(days=1)
-                ).strftime(
-                    "%Y%m%d"
-                )
+                    fecha + timedelta(days=1)
+                ).strftime("%Y%m%d")
             )
 
             titulo += " - HORA PENDIENTE"
@@ -445,7 +338,9 @@ def generar_calendario(partidos):
     ) as archivo:
 
         archivo.write(
-            "\r\n".join(calendario)
+            "\r\n".join(
+                calendario
+            )
             + "\r\n"
         )
 
