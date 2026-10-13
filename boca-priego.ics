@@ -8,16 +8,16 @@ X-WR-CALDESC:Partidos Boca Priego FS Senior
 X-WR-TIMEZONE:Europe/Madrid
 BEGIN:VEVENT
 UID:525a000f00ea3c993c81de0ca9b1294c@bocapriego
-DTSTAMP:20261012T142648Z
+DTSTAMP:20261013T000842Z
 DTSTART;TZID=Europe/Madrid:20261012T190000
 DTEND;TZID=Europe/Madrid:20261012T210000
 SUMMARY:C.D. Boca F.S. Priego - C.D. Avanza Jaén B
 LOCATION:Pabellón de Deportes Rafa Lopez
-DESCRIPTION:Boca Priego FS Senior\\n3ª División Fútbol Sala - Grupo 18\\nLocal: C.D. Boca F.S. Priego\\nVisitante: C.D. Avanza Jaén B
+DESCRIPTION:Boca Priego FS Senior\\n3ª División Fútbol Sala - Grupo 18\\nLocal: C.D. Boca F.S. Priego\\nVisitante: C.D. Avanza Jaén B\\nResultado: 10 - 2
 END:VEVENT
 BEGIN:VEVENT
 UID:7639eab893b6296a478b0ee85419e84b@bocapriego
-DTSTAMP:20261012T142648Z
+DTSTAMP:20261013T000842Z
 DTSTART;VALUE=DATE:20261018
 DTEND;VALUE=DATE:20261019
 SUMMARY:C.D. Av. El Torcal - C.D. Boca F.S. Priego - HORA PENDIENTE
