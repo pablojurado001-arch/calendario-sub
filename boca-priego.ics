@@ -7,17 +7,8 @@ X-WR-CALNAME:Boca Priego FS Senior
 X-WR-CALDESC:Partidos Boca Priego FS Senior
 X-WR-TIMEZONE:Europe/Madrid
 BEGIN:VEVENT
-UID:7639eab893b6296a478b0ee85419e84b@bocapriego
-DTSTAMP:20261021T111054Z
-DTSTART;TZID=Europe/Madrid:20261017T200000
-DTEND;TZID=Europe/Madrid:20261017T220000
-SUMMARY:C.D. Av. El Torcal - C.D. Boca F.S. Priego
-LOCATION:Polideportivo Guadaljaire
-DESCRIPTION:Boca Priego FS Senior\\n3ª División Fútbol Sala - Grupo 18\\nLocal: C.D. Av. El Torcal\\nVisitante: C.D. Boca F.S. Priego\\nResultado: 2 - 7
-END:VEVENT
-BEGIN:VEVENT
 UID:8ac19a076192af7cb004ee6cb08325a9@bocapriego
-DTSTAMP:20261021T111054Z
+DTSTAMP:20261021T163739Z
 DTSTART;TZID=Europe/Madrid:20261025T133000
 DTEND;TZID=Europe/Madrid:20261025T153000
 SUMMARY:C.D. Boca F.S. Priego - Chirivel C.F.
