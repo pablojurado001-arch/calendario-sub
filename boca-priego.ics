@@ -7,21 +7,21 @@ X-WR-CALNAME:Boca Priego FS Senior
 X-WR-CALDESC:Partidos Boca Priego FS Senior
 X-WR-TIMEZONE:Europe/Madrid
 BEGIN:VEVENT
-UID:8ac19a076192af7cb004ee6cb08325a9@bocapriego
-DTSTAMP:20261028T221049Z
-DTSTART;TZID=Europe/Madrid:20261025T133000
-DTEND;TZID=Europe/Madrid:20261025T153000
-SUMMARY:C.D. Boca F.S. Priego - Chirivel C.F.
-LOCATION:Pabellón de Deportes Rafa Lopez
-DESCRIPTION:Boca Priego FS Senior\\n3ª División Fútbol Sala - Grupo 18\\nLocal: C.D. Boca F.S. Priego\\nVisitante: Chirivel C.F.\\nResultado: 3 - 3
-END:VEVENT
-BEGIN:VEVENT
 UID:c4a8999edad94b3acbd0f7b16b042e47@bocapriego
-DTSTAMP:20261028T221049Z
+DTSTAMP:20261029T042500Z
 DTSTART;TZID=Europe/Madrid:20261031T180000
 DTEND;TZID=Europe/Madrid:20261031T200000
 SUMMARY:U.D. Coineña F.S. - C.D. Boca F.S. Priego
 LOCATION:Pabellón Municipal de Coin
 DESCRIPTION:Boca Priego FS Senior\\n3ª División Fútbol Sala - Grupo 18\\nLocal: U.D. Coineña F.S.\\nVisitante: C.D. Boca F.S. Priego
+END:VEVENT
+BEGIN:VEVENT
+UID:00cc3cfbfcfee5ac66fb67057b16634d@bocapriego
+DTSTAMP:20261029T042500Z
+DTSTART;VALUE=DATE:20261108
+DTEND;VALUE=DATE:20261109
+SUMMARY:C.D. Boca F.S. Priego - C.D. Albolote Futsal Herogra - HORA PENDIENTE
+LOCATION:Pabellón de Deportes Rafa Lopez
+DESCRIPTION:Boca Priego FS Senior\\n3ª División Fútbol Sala - Grupo 18\\nLocal: C.D. Boca F.S. Priego\\nVisitante: C.D. Albolote Futsal Herogra
 END:VEVENT
 END:VCALENDAR
