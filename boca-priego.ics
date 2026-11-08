@@ -7,17 +7,17 @@ X-WR-CALNAME:Boca Priego FS Senior
 X-WR-CALDESC:Partidos Boca Priego FS Senior
 X-WR-TIMEZONE:Europe/Madrid
 BEGIN:VEVENT
-UID:00cc3cfbfcfee5ac66fb67057b16634d@bocapriego
-DTSTAMP:20261108T042910Z
+UID:c11554ed7b5673a4a0b9cbe4974d247e@bocapriego
+DTSTAMP:20261108T124605Z
 DTSTART;TZID=Europe/Madrid:20261108T121500
 DTEND;TZID=Europe/Madrid:20261108T141500
-SUMMARY:C.D. Boca F.S. Priego - C.D. Albolote Futsal Herogra
+SUMMARY:C.D. Boca F.S. Priego - 3 - 0
 LOCATION:Pabellón de Deportes Rafa Lopez
-DESCRIPTION:Boca Priego FS Senior\\n3ª División Fútbol Sala - Grupo 18\\nLocal: C.D. Boca F.S. Priego\\nVisitante: C.D. Albolote Futsal Herogra
+DESCRIPTION:Boca Priego FS Senior\\n3ª División Fútbol Sala - Grupo 18\\nLocal: C.D. Boca F.S. Priego\\nVisitante: 3 - 0
 END:VEVENT
 BEGIN:VEVENT
 UID:879ebc4ac112862e5c1437d203b77c68@bocapriego
-DTSTAMP:20261108T042910Z
+DTSTAMP:20261108T124605Z
 DTSTART;VALUE=DATE:20261115
 DTEND;VALUE=DATE:20261116
 SUMMARY:C.D. Futsal Archidona - C.D. Boca F.S. Priego - HORA PENDIENTE
