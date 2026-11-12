@@ -7,21 +7,21 @@ X-WR-CALNAME:Boca Priego FS Senior
 X-WR-CALDESC:Partidos Boca Priego FS Senior
 X-WR-TIMEZONE:Europe/Madrid
 BEGIN:VEVENT
-UID:00cc3cfbfcfee5ac66fb67057b16634d@bocapriego
-DTSTAMP:20261111T133423Z
-DTSTART;TZID=Europe/Madrid:20261108T121500
-DTEND;TZID=Europe/Madrid:20261108T141500
-SUMMARY:C.D. Boca F.S. Priego - C.D. Albolote Futsal Herogra
-LOCATION:Pabellón de Deportes Rafa Lopez
-DESCRIPTION:Boca Priego FS Senior\\n3ª División Fútbol Sala - Grupo 18\\nLocal: C.D. Boca F.S. Priego\\nVisitante: C.D. Albolote Futsal Herogra\\nResultado: 5 - 2
-END:VEVENT
-BEGIN:VEVENT
 UID:879ebc4ac112862e5c1437d203b77c68@bocapriego
-DTSTAMP:20261111T133423Z
+DTSTAMP:20261112T000330Z
 DTSTART;TZID=Europe/Madrid:20261115T120000
 DTEND;TZID=Europe/Madrid:20261115T140000
 SUMMARY:C.D. Futsal Archidona - C.D. Boca F.S. Priego
 LOCATION:Pabellón Municipal Deportivo Fernando Rodríguez
 DESCRIPTION:Boca Priego FS Senior\\n3ª División Fútbol Sala - Grupo 18\\nLocal: C.D. Futsal Archidona\\nVisitante: C.D. Boca F.S. Priego
+END:VEVENT
+BEGIN:VEVENT
+UID:2938158bd39ea874a6a786589e402d2e@bocapriego
+DTSTAMP:20261112T000330Z
+DTSTART;VALUE=DATE:20261122
+DTEND;VALUE=DATE:20261123
+SUMMARY:C.D. Boca F.S. Priego - C.D. Vicar - Vistasol F.S. - HORA PENDIENTE
+LOCATION:Pabellón de Deportes Rafa Lopez
+DESCRIPTION:Boca Priego FS Senior\\n3ª División Fútbol Sala - Grupo 18\\nLocal: C.D. Boca F.S. Priego\\nVisitante: C.D. Vicar - Vistasol F.S.
 END:VEVENT
 END:VCALENDAR
